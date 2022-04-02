@@ -1,4 +1,4 @@
 # NeteaseMusicLyricDownloader
 A simple tool to download lyrics in Netease Music
 
-English|[Chinese](./README_cn.md)
+English|[简体中文](./README_cn.md)
