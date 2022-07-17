@@ -4,7 +4,7 @@ import json
 import os
 
 
-class Settings(object):  # 设定一个基础的存储设置信息的 class
+class Settings(object):  # 设定一个基础的存储设置信息的 class ,并设置形参用于 json 导入设置
     def __init__(self, l_p="./out/", lang="en"):
         self.lyric_path = l_p
         self.language = lang
@@ -31,13 +31,16 @@ def load_settings():  # 加载 的函数
     if os.path.exists("settings.json"):  # 判断目录下是否存在 settings.json ,若没有则创建,若有则读取
         with open("settings.json", 'r', encoding="utf-8") as f:
             try:
-                return json.load(f, object_hook=dict2class)
+                settings = json.load(f, object_hook=dict2class)  # 尝试转换 json 为 dict
+                if not os.path.exists(settings.lyric_path):  # 检测输出文件夹,若文件夹不存在则在启动时创建
+                    os.mkdir(settings.lyric_path)
+                return settings
             except json.decoder.JSONDecodeError:  # 如果检测到文件无法读取,将会删除设置文件并重新创建
                 print("设置文件损坏,重新创建...")
                 os.remove("settings.json")
                 return load_settings()
     else:
-        with open("settings.json", 'w', encoding="utf-8") as f:
+        with open("settings.json", 'w', encoding="utf-8") as f:  # 当 settings.json 不存在时新建一个 settings.json 并写入默认配置
             f.write(json.dumps(Settings(), default=class2dict))
             return Settings()
 

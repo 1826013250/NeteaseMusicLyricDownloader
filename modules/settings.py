@@ -20,11 +20,11 @@ def settings_menu(self):
         elif r == "1":
             __set_lyric_path(self)
         elif r == "2":
-            __save_settings(self)
-        elif r == "s":
             __remove_lyric_files(self.settings.lyric_path)
+        elif r == "s":
+            __save_settings(self)
         else:
-            input("输入")
+            input("输入无效！按回车键继续...")
 
 
 def __remove_lyric_files(path):
@@ -37,17 +37,19 @@ def __remove_lyric_files(path):
         for i in range(0, len(files)):
             print("正在删除(%d/%d): %s" % (i+1, len(files), files[i]))
             os.remove(path+files[i])
-        print("删除完毕!\n按回车继续...")
+        input("删除完毕!\n按回车继续...")
     else:
-        print("文件夹内没有要删除的东西\n按回车继续...")
+        input("文件夹内没有要删除的东西\n按回车继续...")
 
 
 def __set_lyric_path(self):
-    print("允许使用相对路径和绝对路径，默认为\"./out/\"\n请避免使用反斜杠来确保通用性\n"
+    clear()
+    print("允许使用相对路径和绝对路径，默认为\"./out/\"\n请*不要*使用反斜杠来确保通用性\n"
           "当前值:%s\n请输入新的歌词保存路径:" % self.settings.lyric_path)
     r = cinput()
     if not r:
         input("输入为空!\n按回车继续...")
+        return
     if r[-1] != "/":
         r += "/"
     path = ""
