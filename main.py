@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
+# ↑ For Linux & MacOS to run this program directly if the user currently installed python and third-party packages.
 # -*- coding: utf-8 -*-
-# author David-123
+# author: David-123
 
-
-import os
 
 from modules.raw_input import rinput
 from modules.information import print_info
@@ -15,10 +14,8 @@ from modules.clear_screen import clear
 
 
 class MainProcess(object):
-    def __init__(self):
+    def __init__(self):  # 项目初始化
         self.settings = load_settings()
-        if not os.path.exists(self.settings.lyric_path):
-            os.mkdir(self.settings.lyric_path)
         self.version = "0.0.0"
 
     def mainloop(self):
@@ -35,7 +32,7 @@ class MainProcess(object):
             elif r == "2":
                 mdl(self.settings.lyric_path)
             elif r == "0":
-                break
+                exit(0)
             elif r == "i":
                 print_info(self)
             elif r == "s":
