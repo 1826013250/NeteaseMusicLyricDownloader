@@ -50,59 +50,71 @@ def get_song_info_raw(types: list, id: str):
             return need
 
 
-def get_song_lyric(id: str | int, path: str):
+def get_song_lyric(id: str | int | dict, path: str, allinfo: bool = False):
     """获取歌词
     
     ``id`` 提供一个歌曲id
-    ``path`` 提供歌曲下载的路径"""
-    sinfo = get_song_info_raw(["name", "artists"], id)
-    if sinfo == "dl_err_connection":  # 处理各式各样的事件
-        return "dl_err_connection"
-    elif sinfo == "song_nf":
-        return "song_nf"
-    else:  # 整理歌曲数据，获取歌词
-        artists = ""
+    ``path`` 提供歌曲下载的路径
+    ``allinfo`` 若此项为 True ,则提供的id格式必须为 {"id": int | str, "name": str, "artists": [[str, ...], ...]} (dict)"""
+    if allinfo:
+        sinfo = id
+        id = id["id"]
+    else:
+        sinfo = get_song_info_raw(["name", "artists"], id)
+        if sinfo == "dl_err_connection":  # 处理各式各样的事件
+            return "dl_err_connection"
+        elif sinfo == "song_nf":
+            return "song_nf"
+
+    # 整理歌曲数据，获取歌词
+    artists = ""
+    if allinfo:
+        for i in sinfo["artists"]:
+            artists += f"{i[0]},"
+    else:
         for i in sinfo["artists"]:
             artists += f"{i['name']},"
-        artists = artists[:-1]
+    artists = artists[:-1]
 
-        name = sinfo["name"]
-        replaces = {  # 处理非法字符所用的替换字典(根据网易云下载的文件分析得到)
-            "|": "｜",
-            ":": "：",
-            "<": "＜",
-            ">": "＞",
-            "?": "？",
-            "/": "／",
-            "\\": "＼",
-            "*": "＊",
-            '"': "＂"
-        }
-        for k, v in replaces.items():
-            name = name.replace(k, v)
+    name = sinfo["name"]
+    replaces = {  # 处理非法字符所用的替换字典(根据网易云下载的文件分析得到)
+        "|": "｜",
+        ":": "：",
+        "<": "＜",
+        ">": "＞",
+        "?": "？",
+        "/": "／",
+        "\\": "＼",
+        "*": "＊",
+        '"': "＂"
+    }
+    for k, v in replaces.items():
+        name = name.replace(k, v)
 
-        print(f"歌曲:{name} - {artists}")
-        filename = f"{name} - {artists}.lrc"
+    print(f"歌曲:{name} - {artists}")
+    filename = f"{name} - {artists}.lrc"
 
-        try:
-            response = post(f"http://music.163.com/api/song/media?id={id}")
-        except ConnectionError:
-            return "dl_err_connection"
-        else:
-            info = loads(response.text)
-            if info["code"] == 406:  # 此处与上方一样，防止因为请求限制而跳过下载
-                result = wait_retry()
-                if result == "continue":
-                    pass
-                elif result == "dl_err_connection":
-                    return "dl_err_connection"
-                else:
-                    raise Exception("Unknown exception...")
+    try:
+        response = post(f"http://music.163.com/api/song/media?id={id}")
+    except ConnectionError:
+        return "dl_err_connection"
+    else:
+        info = loads(response.text)
+        if info["code"] == 406:  # 此处与上方一样，防止因为请求限制而跳过下载
+            result = wait_retry()
+            if result == "continue":
+                pass
+            elif result == "dl_err_connection":
+                return "dl_err_connection"
+            else:
+                raise Exception("Unknown exception...")
 
-        tmp = loads(response.text)
-        if tmp.get("nolyric") or not tmp.get('lyric'):
-            print("这首歌没有歌词，跳过...")
-        else:
-            with open(f"{path}{filename}", "w", encoding="utf-8") as f:
-                f.write(tmp["lyric"])
-            print(f"歌词下载完成!被保存在{path}{filename}")
+    tmp = loads(response.text)
+    if tmp.get("nolyric") or not tmp.get('lyric'):
+        print("这首歌没有歌词，跳过...")
+        return
+    else:
+        with open(f"{path}{filename}", "w", encoding="utf-8") as f:
+            f.write(tmp["lyric"])
+        print(f"歌词下载完成!被保存在{path}{filename}")
+        return

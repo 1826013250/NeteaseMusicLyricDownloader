@@ -21,7 +21,7 @@ def mdl(path: str):
 
             except ValueError:
 
-                tmp = re.search("song\?id=[0-9]*", r)
+                tmp = re.search(r"song\?id=[0-9]*", r)
                 if tmp:
                     r = tmp.group()[8:]
                 else:
