@@ -11,6 +11,7 @@ from modules.one_download import download_one_lyric
 from modules.settings import settings_menu
 from modules.save_load_settings import load_settings
 from modules.clear_screen import clear
+from modules.readmp3 import get_lyric_from_folder
 
 
 class MainProcess(object):
@@ -24,13 +25,16 @@ class MainProcess(object):
             clear()
             print(f"[NeteaseMusicLyricDownloader Reloaded] {self.version}\n"
                   "[程序主菜单]\n"
-                  "[0] 退出程序\n[i] 程序信息\n[1] 单个歌曲的歌词下载\n[2] 多个歌曲的歌词下载\n[s] 进入设置")
+                  "[0] 退出程序\n[1] 单个歌曲的歌词下载\n[2] 多个歌曲的歌词下载\n[3] 从网易云下载的歌曲中获取歌词"
+                  "\n[s] 进入设置\n[i] 程序信息")
             r = rinput("请选择:")
 
             if r == "1":
                 download_one_lyric(self.settings.lyric_path)
             elif r == "2":
                 mdl(self.settings.lyric_path)
+            elif r == "3":
+                get_lyric_from_folder(self.settings.lyric_path)
             elif r == "0":
                 exit(0)
             elif r == "i":
@@ -43,4 +47,7 @@ class MainProcess(object):
 
 if __name__ == "__main__":
     app = MainProcess()
-    app.mainloop()
+    try:
+        app.mainloop()
+    except KeyboardInterrupt:
+        exit(-1)
