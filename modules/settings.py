@@ -11,7 +11,7 @@ def settings_menu(self):
     """设置菜单主循环"""
     while True:
         clear()
-        print(f"[NeteaseMusicLyricDownloader Reloaded] {self.version}\n"
+        print(f"[NeteaseMusicLyricDownloader] {self.version}\n"
               "[设置菜单]\n"
               "[0] 返回上级\n[1] 设置歌曲保存路径\n[2] 清空输出文件夹内的所有歌词\n[s] 将设置保存到文件")
         r = rinput("请选择:")

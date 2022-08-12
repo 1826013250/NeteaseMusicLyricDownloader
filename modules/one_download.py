@@ -4,7 +4,7 @@ from modules.get_song import get_song_lyric
 from modules.clear_screen import clear
 
 
-def download_one_lyric(song_id, path: str):
+def download_one_lyric(path: str):
     """单次下载歌词
 
     ``path: str`` 存储歌词的路径"""

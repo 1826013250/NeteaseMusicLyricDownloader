@@ -1,4 +1,5 @@
 """集合 下载歌词 以及 获取歌曲信息 的功能"""
+import os
 from json import loads
 from requests import post
 from requests.exceptions import ConnectionError
@@ -90,6 +91,7 @@ def get_song_lyric(id: str | int | dict, path: str, allinfo: bool = False):
     }
     for k, v in replaces.items():
         name = name.replace(k, v)
+        artists = artists.replace(k, v)
 
     print(f"歌曲:{name} - {artists}")
     filename = f"{name} - {artists}.lrc"
@@ -114,7 +116,7 @@ def get_song_lyric(id: str | int | dict, path: str, allinfo: bool = False):
         print("这首歌没有歌词，跳过...")
         return
     else:
-        with open(f"{path}{filename}", "w", encoding="utf-8") as f:
+        with open(os.path.join(path, filename), "w", encoding="utf-8") as f:
             f.write(tmp["lyric"])
-        print(f"歌词下载完成!被保存在{path}{filename}")
+        print(f"歌词下载完成!被保存在{os.path.join(path, filename)}")
         return
