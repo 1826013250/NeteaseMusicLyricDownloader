@@ -11,19 +11,19 @@ from modules.one_download import download_one_lyric
 from modules.settings import settings_menu
 from modules.save_load_settings import load_settings
 from modules.clear_screen import clear
-from modules.readmp3 import get_lyric_from_folder
+from modules.load_file_song import get_lyric_from_folder
 
 
 class MainProcess(object):
     def __init__(self):  # 项目初始化
         self.settings = load_settings()
-        self.version = "0.0.0"
+        self.version = "1.0"
 
     def mainloop(self):
         """程序主循环"""
         while True:
             clear()
-            print(f"[NeteaseMusicLyricDownloader Reloaded] {self.version}\n"
+            print(f"[NeteaseMusicLyricDownloader] {self.version}\n"
                   "[程序主菜单]\n"
                   "[0] 退出程序\n[1] 单个歌曲的歌词下载\n[2] 多个歌曲的歌词下载\n[3] 从网易云下载的歌曲中获取歌词"
                   "\n[s] 进入设置\n[i] 程序信息")
