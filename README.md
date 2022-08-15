@@ -10,8 +10,8 @@ It uses the module `requests` to fetch the lyric on music.163.com
 Netease Music supply us an api that we can get the lyric of the current song, so I make this program...
 
 ## Installation
-First, you need a python(>=3.10) environment, and use `pip` to install these packages: `requests` `mutagen` `pycryptodome`
->Feel complex? just copy this command to your terminal: `python3 -m pip install requests mutagen pycryptodome`
+First, you need a python(>=3.10) environment, and use `pip` to install these packages: `requests` `mutagen` `pycryptodomex`
+>Feel complex? just copy this command to your terminal: `python3 -m pip install requests mutagen pycryptodomex`
 
 Second, clone the entire project and run the command `python3 main.py` in the project folder.
 
