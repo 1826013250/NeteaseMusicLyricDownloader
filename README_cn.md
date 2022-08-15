@@ -9,8 +9,8 @@
 网易云音乐提供给我们了一个获取歌词的API ~~然后我就做了这个程序（~~
 
 ## 爷要安装
-首先，你需要一个Python环境(要求版本>=3.10,因为使用了3.10python的新特性)，然后使用pip来安装`requests` `mutagen` `pycryptodome`这几个包
->您觉得很麻烦?_~~事真多~~_ 直接复制这段命令到终端罢！（你得先有Python和pip）： `python3 -m pip install requests mutagen pycryptodome`
+首先，你需要一个Python环境(要求版本>=3.10,因为使用了3.10python的新特性)，然后使用pip来安装`requests` `mutagen` `pycryptodomex`这几个包
+>您觉得很麻烦?_~~事真多~~_ 直接复制这段命令到终端罢！（你得先有Python和pip）： `python3 -m pip install requests mutagen pycryptodomex`
 
 然后，把整个项目薅下来，在当前目录下运行`python3 main.py`就行了
 
