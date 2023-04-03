@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-# ↑ For Linux & MacOS to run this program directly if the user currently installed python and third-party packages.
+# ↑ For Linux & macOS to run this program directly if the user currently installed python and third-party packages.
 # -*- coding: utf-8 -*-
 # author: David-123
 
 
-from modules.raw_input import rinput
+from modules.inputs import rinput
 from modules.information import print_info
 from modules.multi_download import mdl
 from modules.one_download import download_one_lyric

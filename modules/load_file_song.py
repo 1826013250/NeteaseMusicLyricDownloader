@@ -5,19 +5,31 @@ import struct
 from base64 import b64decode
 
 from Cryptodome.Cipher import AES
-from mutagen import File
+from mutagen import File, flac
 from mutagen.id3 import ID3, TPE1, APIC, COMM, TIT2, TALB
 
 from modules.clear_screen import clear
 from modules.get_song import get_song_lyric
+from modules.inputs import cinput, rinput
 
 
 def load_information_from_song(path):
     """从音乐文件中的 Comment 字段获取 163 key 并解密返回歌曲信息"""
-    file = File(path)  # 使用 TinyTag 获取歌曲信息
-    if file.tags.get("COMM::XXX"):
-        if file.tags["COMM::XXX"].text[0][:7] == "163 key":
-            ciphertext = file.tags["COMM::XXX"].text[0][22:]
+    file = File(path)  # 使用 mutagen 获取歌曲信息
+    if os.path.splitext(path)[-1] == ".mp3":  # 当文件为 mp3 时使用 ID3 格式读取
+        if file.tags.get("COMM::XXX"):
+            if file.tags["COMM::XXX"].text[0][:7] == "163 key":
+                ciphertext = file.tags["COMM::XXX"].text[0][22:]
+            else:
+                return "not_support"
+        else:
+            return "not_support"
+    elif os.path.splitext(path)[-1] == ".flac":  # 当文件为 flac 时使用 FLAC 格式读取
+        if file.tags.get("DESCRIPTION"):
+            if file.tags["DESCRIPTION"][0][:7] == "163 key":
+                ciphertext = file.tags["DESCRIPTION"][0][22:]
+            else:
+                return "not_support"
         else:
             return "not_support"
     else:
@@ -30,6 +42,7 @@ def load_information_from_song(path):
             end = ord(s[-1])
         return s[0:-end]
         # return s[0:-(s[-1] if type(s[-1]) == int else ord(s[-1]))]  更加清晰的理解 ↑
+
     cryptor = AES.new(b"#14ljk_!\\]&0U<'(", AES.MODE_ECB)  # 使用密钥创建解密器
 
     # 下方这一行将密文 ciphertext 转换为 bytes 后进行 base64 解码, 得到加密过的 AES 密文
@@ -114,23 +127,34 @@ def load_and_decrypt_from_ncm(file_path, targetdir):  # nondanee的源代码, �
     f.close()
 
     # 对解密后的文件进行信息补全
-    audio = ID3(os.path.splitext(file_path)[0]+"."+meta_data["format"])
-    artists = []
-    for i in meta_data["artist"]:
-        artists.append(i[0])
-    audio["TPE1"] = TPE1(encoding=3, text=artists)  # 插入歌手
-    audio["APIC"] = APIC(encoding=3, mime='image/jpg', type=3, desc='', data=image_data)  # 插入封面
-    audio["COMM::XXX"] = COMM(encoding=3, lang='XXX', desc='', text=[comment.decode("utf-8")])  # 插入 163 key 注释
-    audio["TIT2"] = TIT2(encoding=3, text=[meta_data["musicName"]])  # 插入歌曲名
-    audio["TALB"] = TALB(encoding=3, text=[meta_data["album"]])  # 插入专辑名
-    audio.save()
+    if meta_data["format"] == "mp3":  # 针对 mp3 使用 ID3 进行信息补全
+        audio = ID3(os.path.join(targetdir, os.path.splitext(file_path.split("/")[-1])[0] + ".mp3"))
+        artists = []
+        for i in meta_data["artist"]:
+            artists.append(i[0])
+        audio["TPE1"] = TPE1(encoding=3, text=artists)  # 插入歌手
+        audio["APIC"] = APIC(encoding=3, mime='image/jpg', type=3, desc='', data=image_data)  # 插入封面
+        audio["COMM::XXX"] = COMM(encoding=3, lang='XXX', desc='', text=[comment.decode("utf-8")])  # 插入 163 key 注释
+        audio["TIT2"] = TIT2(encoding=3, text=[meta_data["musicName"]])  # 插入歌曲名
+        audio["TALB"] = TALB(encoding=3, text=[meta_data["album"]])  # 插入专辑名
+        audio.save()
+    elif meta_data["format"] == "flac":  # 针对 flac 使用 FLAC 进行信息补全
+        audio = flac.FLAC(os.path.join(targetdir, os.path.splitext(file_path.split("/")[-1])[0] + ".flac"))
+        artists = []
+        for i in meta_data["artist"]:
+            artists.append(i[0])
+        audio["artist"] = artists[:]  # 插入歌手
+        audio["title"] = [meta_data["musicName"]]  # 插入歌曲名
+        audio["album"] = [meta_data["album"]]  # 插入专辑名
+        audio["description"] = comment.decode("utf-8")  # 插入 163 key 注释
+        audio.save()
 
     return meta_data
 
 
 def get_lyric_from_folder(lyric_path: str):
     clear()
-    path = input("请输入歌曲的保存文件夹(绝对路径):").strip()
+    path = cinput("请输入歌曲的保存文件夹(绝对路径):")
     if not os.path.exists(path):
         input("路径不存在.\n按回车返回...")
         return
@@ -164,7 +188,7 @@ def get_lyric_from_folder(lyric_path: str):
             print(f"\n发现{len(ncm_files)}个ncm加密文件!")
             print("请问解密后的文件保存在哪里?\n"
                   "[1] 保存在相同文件夹内\n[2] 保存在程序设定的下载文件夹中\n[3] 保存在自定义文件夹内\n[q] 取消解密,下载歌词时将忽略这些文件")
-            select = input("请选择: ").strip().lower()
+            select = rinput("请选择: ")
             if select == 'q':
                 target_path = "NOT_DECRYPT"
                 break
@@ -182,28 +206,29 @@ def get_lyric_from_folder(lyric_path: str):
 
         if target_path != "NOT_DECRYPT":
             for i in range(0, len(ncm_files)):
-                print("破解进度: %d/%d ~ %s" % (i+1, len(ncm_files), ncm_files[i]))
+                print("破解进度: %d/%d ~ %s" % (i + 1, len(ncm_files), ncm_files[i]))
                 try:
                     result = load_and_decrypt_from_ncm(os.path.join(path, ncm_files[i]), target_path)
                 except AssertionError:
                     print(f"\t- 文件 \"{ncm_files[i]}\" 破解失败!\n\t  可能是文件不完整或者重命名了别的文件?跳过...")
                     fails += 1
                     continue
-                print("\t--> %s" % os.path.splitext(ncm_files[i])[0]+"."+result["format"])
+                print("\t--> %s" % os.path.splitext(ncm_files[i])[0] + "." + result["format"])
                 musics.append({"id": result['musicId'], "name": result["musicName"], "artists": result["artist"]})
 
     # 汇报索引结果
-    print(f"\n索引完毕!共找到{fails + len(musics) + len(ncm_files)}个目标文件\n{len(musics)}个文件已载入\n{fails}个文件失败")
+    print(
+        f"\n索引完毕!共找到{fails + len(musics) + len(ncm_files)}个目标文件\n{len(musics)}个文件已载入\n{fails}个文件失败")
     if ncm_files:
         if target_path == "NOT_DECRYPT":
             print(f"{len(ncm_files)}个文件放弃加载")
     while True:
         print("\n你希望如何保存这些歌曲的歌词?\n[1]保存到刚刚输入的绝对路径中\n[2]保存到程序设定的下载路径中")
-        r = input("请选择: ").strip().lower()
+        r = rinput("请选择: ")
         if r == "1":
+            lyric_path = path
             break
         elif r == "2":
-            path = lyric_path
             break
         else:
             try:
@@ -215,16 +240,16 @@ def get_lyric_from_folder(lyric_path: str):
     clear()
     for i in range(0, len(musics)):  # 根据索引结果获取歌词
         print("\n进度: %d/%d" % (i + 1, len(musics)))
-        if get_song_lyric(musics[i], path, allinfo=True) == "dl_err_connection":
+        if get_song_lyric(musics[i], lyric_path, allinfo=True) == "dl_err_connection":
             input("下载发生错误！可能是连接被拒绝!请检查网络后再试\n按回车键继续任务(该任务会被跳过)...")
     if ncm_files:
         if target_path != "NOT_DECRYPT":
-            agree = input("是否删除原ncm文件? (y/n)").strip().lower()
+            agree = rinput("是否删除原ncm文件? (y/n)")
             if agree == "y":
                 for i in range(0, len(ncm_files)):
-                    print("删除进度: %d/%d ~ %s" % (i+1, len(ncm_files), ncm_files[i]))
+                    print("删除进度: %d/%d\n -> %s\033[F" % (i + 1, len(ncm_files), ncm_files[i]), end="")
                     os.remove(os.path.join(path, ncm_files[i]))
             else:
-                print("取消.")
-    input("按回车返回...")
+                print("取消.", end="")
+    input("\n\033[K按回车返回...")
     return

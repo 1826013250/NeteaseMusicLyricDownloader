@@ -1,6 +1,6 @@
 import re
 from modules.clear_screen import clear
-from modules.raw_input import rinput
+from modules.inputs import rinput
 from modules.get_song import get_song_lyric
 
 
@@ -18,9 +18,7 @@ def mdl(path: str):
         else:
             try:
                 int(r)
-
             except ValueError:
-
                 tmp = re.search(r"song\?id=[0-9]*", r)
                 if tmp:
                     r = tmp.group()[8:]
@@ -31,7 +29,8 @@ def mdl(path: str):
             print("\t#%d id:%s - 已添加!" % (len(ids), r))
     clear()
     for i in range(0, len(ids)):
-        print("\n进度: %d/%d" % (i+1, len(ids)))
-        if get_song_lyric(ids[i], path) == "dl_err_connection":
+        print("进度: %d/%d" % (i+1, len(ids)))
+        r = get_song_lyric(ids[i], path)
+        if r == "dl_err_connection":
             input("下载发生错误！可能是连接被拒绝!请检查网络后再试\n按回车键继续任务(该任务会被跳过)...")
     input("按回车键返回...")

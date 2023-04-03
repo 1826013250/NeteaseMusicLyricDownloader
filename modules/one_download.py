@@ -1,5 +1,5 @@
 import re
-from modules.raw_input import rinput
+from modules.inputs import rinput
 from modules.get_song import get_song_lyric
 from modules.clear_screen import clear
 
