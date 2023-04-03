@@ -3,7 +3,10 @@ import json
 import os
 import struct
 from base64 import b64decode
+from multiprocessing import Process, Queue
+from queue import Empty
 
+from progress.bar import Bar
 from Cryptodome.Cipher import AES
 from mutagen import File, flac
 from mutagen.id3 import ID3, TPE1, APIC, COMM, TIT2, TALB
@@ -152,6 +155,15 @@ def load_and_decrypt_from_ncm(file_path, targetdir):  # nondanee的源代码, �
     return meta_data
 
 
+def process_work(path, filename, target, q_err: Queue, q_info: Queue):
+    try:
+        result = load_and_decrypt_from_ncm(path, target)
+    except AssertionError:
+        q_err.put(f"\t- 文件 \"{filename}\" 破解失败!")
+    else:
+        q_info.put(result)
+
+
 def get_lyric_from_folder(lyric_path: str):
     clear()
     path = cinput("请输入歌曲的保存文件夹(绝对路径):")
@@ -204,21 +216,52 @@ def get_lyric_from_folder(lyric_path: str):
             else:
                 print("输入无效！按回车继续...")
 
-        if target_path != "NOT_DECRYPT":
-            for i in range(0, len(ncm_files)):
-                print("破解进度: %d/%d ~ %s" % (i + 1, len(ncm_files), ncm_files[i]))
-                try:
-                    result = load_and_decrypt_from_ncm(os.path.join(path, ncm_files[i]), target_path)
-                except AssertionError:
-                    print(f"\t- 文件 \"{ncm_files[i]}\" 破解失败!\n\t  可能是文件不完整或者重命名了别的文件?跳过...")
-                    fails += 1
-                    continue
-                print("\t--> %s" % os.path.splitext(ncm_files[i])[0] + "." + result["format"])
-                musics.append({"id": result['musicId'], "name": result["musicName"], "artists": result["artist"]})
+        if target_path != "NOT_DECRYPT":  # 开始进行逐个文件解密
+            errors = []  # 初始化变量
+            q_err = Queue()  # 错误信息队列
+            q_info = Queue()  # 返回信息队列
+            max_process = 20  # 最大进程数
+            current_process = 0  # 当前正在活动的进程数
+            passed = 0  # 总共结束的进程数
+            with Bar("正在破解", max=len(ncm_files)) as bar:
+                total = len(ncm_files)
+                finished = 0  # 已经分配的人物数量
+                while True:  # 进入循环，执行  新建进程->检测队列->检测任务完成  的循环
+                    if current_process <= max_process and finished < total:  # 分配进程
+                        Process(target=process_work,
+                                args=(os.path.join(path, ncm_files[finished]),
+                                      ncm_files[finished],
+                                      target_path,
+                                      q_err,
+                                      q_info)).start()
+                        finished += 1
+                    while True:  # 错误队列检测
+                        try:
+                            errors.append(q_err.get_nowait())
+                            passed += 1  # 总任务完成数
+                            current_process -= 1  # 检测到进程完毕将进程-1
+                            bar.next()  # 推动进度条
+                            fails += 1  # 错误数量+1
+                        except Empty:
+                            break
+                    while True:  # 信息队列检测
+                        try:
+                            r = q_info.get_nowait()
+                            musics.append({"id": r['musicId'], "name": r["musicName"], "artists": r["artist"]})
+                            passed += 1
+                            current_process -= 1
+                            bar.next()
+                        except Empty:
+                            break
+                    if passed >= len(ncm_files):
+                        break
+            if errors:
+                print("解密过程中发现了以下错误:")
+                for i in errors:
+                    print(i)
 
     # 汇报索引结果
-    print(
-        f"\n索引完毕!共找到{fails + len(musics) + len(ncm_files)}个目标文件\n{len(musics)}个文件已载入\n{fails}个文件失败")
+    print(f"\n索引完毕!共找到{fails + len(musics) + len(ncm_files)}个目标文件\n{len(musics)}个文件已载入\n{fails}个文件失败")
     if ncm_files:
         if target_path == "NOT_DECRYPT":
             print(f"{len(ncm_files)}个文件放弃加载")
