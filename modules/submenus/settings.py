@@ -1,9 +1,9 @@
 """集合设置参数"""
 
 import os
-from modules.clear_screen import clear
-from modules.inputs import rinput, cinput
-from modules.save_load_settings import save_settings
+from modules.utils.clear_screen import clear
+from modules.utils.inputs import rinput, cinput
+from modules.functions.save_load_settings import save_settings
 
 
 def settings_menu(self):
@@ -36,7 +36,7 @@ def __remove_output_files(self):
         clear()
         print(f"[NeteaseMusicLyricDownloader] {self.version}\n"
               "[设置菜单 - 删除文件]\n"
-              "[0] 返回上级\n[1] 清除歌词文件\n[2] 清除歌曲文件")
+              "[0] 返回上级\n[1] 清除歌词文件\n[2] 清除歌曲文件\n[a] 清除所有文件")
         r = rinput("请选择:")  # 选择清除的文件格式
         if r == "0":
             return
@@ -46,14 +46,20 @@ def __remove_output_files(self):
         elif r == "2":
             dellist = [".mp3", ".flac"]
             break
+        elif r == "a":
+            dellist = ["ALL"]
+            break
         else:
             input("输入无效!\n按回车键继续...")
     files = []
     for i in os.listdir(self.settings.lyric_path):  # 列出所有文件
-        if os.path.splitext(i)[-1] in dellist:  # 匹配文件
+        if dellist[0] == "ALL":
+            files = os.listdir(self.settings.lyric_path)
+            break
+        elif os.path.splitext(i)[-1] in dellist:  # 匹配文件
             files.append(i)  # 将匹配到的文件加入到列表, 等待删除
     if len(files) != 0:
-        if len(files) > 50:
+        if len(files) > 30:
             special_text = "\033[F"
         else:
             special_text = "\n"

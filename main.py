@@ -4,14 +4,14 @@
 # author: David-123
 
 
-from modules.inputs import rinput
-from modules.information import print_info
-from modules.multi_download import mdl
-from modules.one_download import download_one_lyric
-from modules.settings import settings_menu
-from modules.save_load_settings import load_settings
-from modules.clear_screen import clear
-from modules.load_file_song import get_lyric_from_folder
+from modules.utils.inputs import rinput
+from modules.utils.information import print_info
+from modules.functions.multi_download import mdl
+from modules.functions.one_download import download_one_lyric
+from modules.submenus.settings import settings_menu
+from modules.functions.save_load_settings import load_settings
+from modules.utils.clear_screen import clear
+from modules.functions.load_file_song import get_lyric_from_folder
 
 
 class MainProcess(object):
@@ -30,11 +30,11 @@ class MainProcess(object):
             r = rinput("请选择:")
 
             if r == "1":
-                download_one_lyric(self.settings.lyric_path)
+                download_one_lyric(self)
             elif r == "2":
-                mdl(self.settings.lyric_path)
+                mdl(self)
             elif r == "3":
-                get_lyric_from_folder(self.settings.lyric_path)
+                get_lyric_from_folder(self)
             elif r == "0":
                 exit(0)
             elif r == "i":
