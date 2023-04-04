@@ -165,7 +165,6 @@ def process_work(path, filename, target, q_err: Queue, q_info: Queue):
 
 
 def get_lyric_from_folder(self):
-    global ncm_files_num
     clear()
     path = cinput(
         f"[NeteaseMusicLyricDownloader] {self.version}\n"
