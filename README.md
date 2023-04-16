@@ -25,7 +25,7 @@ You need to provide the id or the share link of the song, and the program will d
 
 Now it can recognize 163 key in music files that download from Netease Cloudmusic client.
 
-- 2022/8/13 Now it has the function from `ncmdump`, it can decrypt the ncm files and fetch the specific lyric.
+- 2022/8/13 Now it has the function from `ncmdump`, and it can decrypt the ncm files and fetch the specific lyric.
 
 ## Todo
 
