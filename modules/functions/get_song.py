@@ -78,6 +78,9 @@ def get_song_lyric(id: str | int | dict, path: str, allinfo: bool = False):
     artists = artists[:-1]
 
     name = sinfo["name"]
+    if not name:
+        print("歌曲错误!这是网易云的问题,请不要找作者")
+        return "song_err"
     replaces = {  # 处理非法字符所用的替换字典(根据网易云下载的文件分析得到)
         "|": "｜",
         ":": "：",

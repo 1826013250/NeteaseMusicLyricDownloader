@@ -250,7 +250,9 @@ def get_lyric_from_folder(self):
                                       q_err,
                                       q_info)).start()
                         allocated += 1
+                        current_process += 1
                         bar.suffix = f"已分配: {ncm_files[allocated-1]}"
+                        print(len(bar.fill))
                         bar.update()
                     while True:  # 错误队列检测
                         try:
