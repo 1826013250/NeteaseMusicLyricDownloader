@@ -7,6 +7,7 @@ from multiprocessing import Process, Queue
 from queue import Empty
 from time import sleep
 
+import mutagen.mp3
 from progress.bar import Bar
 from Cryptodome.Cipher import AES
 from mutagen import File, flac
@@ -19,7 +20,10 @@ from modules.utils.inputs import cinput, rinput
 
 def load_information_from_song(path) -> str | dict:
     """从音乐文件中的 Comment 字段获取 163 key 并解密返回歌曲信息"""
-    file = File(path)  # 使用 mutagen 获取歌曲信息
+    try:
+        file = File(path)  # 使用 mutagen 获取歌曲信息
+    except mutagen.mp3.HeaderNotFoundError:
+        return "not_a_music"
     if os.path.splitext(path)[-1] == ".mp3":  # 当文件为 mp3 时使用 ID3 格式读取
         if file.tags.get("COMM::XXX"):
             if file.tags["COMM::XXX"].text[0][:7] == "163 key":
@@ -193,6 +197,9 @@ def get_lyric_from_folder(self):
             elif result == "not_a_normal_music":
                 fails += 1
                 print(f"文件 \"{i}\" 内 163 key 不是一个普通音乐文件,这可能是一个电台曲目")
+            elif result == "not_a_music":
+                fails += 1
+                print(f"文件 \"{i}\" 不是一个音乐文件,请检查该文件是否正常")
             else:
                 musics.append({"id": result['musicId'], "name": result["musicName"], "artists": result["artist"]})
         elif ext == ".ncm":  # 对于 ncm 先加入到列表，等待解密
