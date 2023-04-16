@@ -137,15 +137,15 @@ def load_and_decrypt_from_ncm(file_path, target_dir) -> dict:  # nondanee的源�
 
     # 对解密后的文件进行信息补全
     if meta_data["format"] == "mp3":  # 针对 mp3 使用 ID3 进行信息补全
-        audio = ID3(os.path.join(target_dir, os.path.splitext(file_path.split("/")[-1])[0] + ".mp3"))
+        audio = File(os.path.join(target_dir, os.path.splitext(file_path.split("/")[-1])[0] + ".mp3"))
         artists = []
         for i in meta_data["artist"]:
             artists.append(i[0])
-        audio["TPE1"] = TPE1(encoding=3, text=artists)  # 插入歌手
-        audio["APIC"] = APIC(encoding=3, mime='image/jpg', type=3, desc='', data=image_data)  # 插入封面
-        audio["COMM::XXX"] = COMM(encoding=3, lang='XXX', desc='', text=[comment.decode("utf-8")])  # 插入 163 key 注释
-        audio["TIT2"] = TIT2(encoding=3, text=[meta_data["musicName"]])  # 插入歌曲名
-        audio["TALB"] = TALB(encoding=3, text=[meta_data["album"]])  # 插入专辑名
+        audio.tags["TPE1"] = TPE1(encoding=3, text=artists)  # 插入歌手
+        audio.tags["APIC"] = APIC(encoding=3, mime='image/jpg', type=3, desc='', data=image_data)  # 插入封面
+        audio.tags["COMM::XXX"] = COMM(encoding=3, lang='XXX', desc='', text=[comment.decode("utf-8")])  # 插入 163 key 注释
+        audio.tags["TIT2"] = TIT2(encoding=3, text=[meta_data["musicName"]])  # 插入歌曲名
+        audio.tags["TALB"] = TALB(encoding=3, text=[meta_data["album"]])  # 插入专辑名
         audio.save()
     elif meta_data["format"] == "flac":  # 针对 flac 使用 FLAC 进行信息补全
         audio = flac.FLAC(os.path.join(target_dir, os.path.splitext(file_path.split("/")[-1])[0] + ".flac"))
