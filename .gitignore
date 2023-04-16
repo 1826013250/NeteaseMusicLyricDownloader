@@ -1,0 +1,6 @@
+out/
+settings.json
+.idea/
+venv/
+venv_win/
+test/
