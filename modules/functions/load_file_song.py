@@ -8,7 +8,6 @@ from queue import Empty
 from time import sleep
 
 import mutagen.mp3
-from progress.bar import Bar
 from Cryptodome.Cipher import AES
 from mutagen import File, flac
 from mutagen.id3 import ID3, TPE1, APIC, COMM, TIT2, TALB
@@ -16,6 +15,7 @@ from mutagen.id3 import ID3, TPE1, APIC, COMM, TIT2, TALB
 from modules.utils.clear_screen import clear
 from modules.functions.get_song import get_song_lyric
 from modules.utils.inputs import cinput, rinput
+from modules.utils.bar import CompactBar
 
 
 def load_information_from_song(path) -> str | dict:
@@ -137,15 +137,15 @@ def load_and_decrypt_from_ncm(file_path, target_dir) -> dict:  # nondanee的源�
 
     # 对解密后的文件进行信息补全
     if meta_data["format"] == "mp3":  # 针对 mp3 使用 ID3 进行信息补全
-        audio = File(os.path.join(target_dir, os.path.splitext(file_path.split("/")[-1])[0] + ".mp3"))
+        audio = ID3(os.path.join(target_dir, os.path.splitext(file_path.split("/")[-1])[0] + ".mp3"))
         artists = []
         for i in meta_data["artist"]:
             artists.append(i[0])
-        audio.tags["TPE1"] = TPE1(encoding=3, text=artists)  # 插入歌手
-        audio.tags["APIC"] = APIC(encoding=3, mime='image/jpg', type=3, desc='', data=image_data)  # 插入封面
-        audio.tags["COMM::XXX"] = COMM(encoding=3, lang='XXX', desc='', text=[comment.decode("utf-8")])  # 插入 163 key 注释
-        audio.tags["TIT2"] = TIT2(encoding=3, text=[meta_data["musicName"]])  # 插入歌曲名
-        audio.tags["TALB"] = TALB(encoding=3, text=[meta_data["album"]])  # 插入专辑名
+        audio["TPE1"] = TPE1(encoding=3, text=artists)  # 插入歌手
+        audio["APIC"] = APIC(encoding=3, mime='image/jpg', type=3, desc='', data=image_data)  # 插入封面
+        audio["COMM::XXX"] = COMM(encoding=3, lang='XXX', desc='', text=[comment.decode("utf-8")])  # 插入 163 key 注释
+        audio["TIT2"] = TIT2(encoding=3, text=[meta_data["musicName"]])  # 插入歌曲名
+        audio["TALB"] = TALB(encoding=3, text=[meta_data["album"]])  # 插入专辑名
         audio.save()
     elif meta_data["format"] == "flac":  # 针对 flac 使用 FLAC 进行信息补全
         audio = flac.FLAC(os.path.join(target_dir, os.path.splitext(file_path.split("/")[-1])[0] + ".flac"))
@@ -236,8 +236,8 @@ def get_lyric_from_folder(self):
             max_process = 20  # 最大进程数
             current_process = 0  # 当前正在活动的进程数
             passed = 0  # 总共结束的进程数
-            with Bar(f"正在破解 %(index){len(str(len(ncm_files)))}d/%(max)d",
-                     suffix="", max=len(ncm_files), color="blue") as bar:
+            with CompactBar(f"正在破解 %(index){len(str(len(ncm_files)))}d/%(max)d",
+                            suffix="", max=len(ncm_files), color="blue") as bar:
                 total = len(ncm_files)
                 allocated = 0  # 已经分配的任务数量
                 while True:  # 进入循环，执行  新建进程->检测队列->检测任务完成  的循环
@@ -251,8 +251,6 @@ def get_lyric_from_folder(self):
                                       q_info)).start()
                         allocated += 1
                         current_process += 1
-                        bar.suffix = f"已分配: {ncm_files[allocated-1]}"
-                        print(len(bar.fill))
                         bar.update()
                     while True:  # 错误队列检测
                         try:
@@ -269,8 +267,8 @@ def get_lyric_from_folder(self):
                             musics.append({"id": r['musicId'], "name": r["musicName"], "artists": r["artist"]})
                             passed += 1
                             current_process -= 1
-                            bar.suffix = f"已完成: {r['musicName']} - "\
-                                         f"{''.join([x + ', ' for x in [x[0] for x in r['artist']]])[:-2]}"
+                            bar.print_onto_bar(f"已完成: {r['musicName']} - "
+                                               f"{''.join([x + ', ' for x in [x[0] for x in r['artist']]])[:-2]}")
                             bar.next()
                         except Empty:
                             break
