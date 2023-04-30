@@ -212,7 +212,10 @@ def get_lyric_from_folder(self):
         while True:
             print(f"\n发现{len(ncm_files)}个ncm加密文件!")
             print("请问解密后的文件保存在哪里?\n"
-                  "[1] 保存在相同文件夹内\n[2] 保存在程序设定的下载文件夹中\n[3] 保存在自定义文件夹内\n[q] 取消解密,下载歌词时将忽略这些文件")
+                  "[1] 保存在相同文件夹内\n"
+                  "[2] 保存在程序设定的下载文件夹中\n"
+                  "[3] 保存在自定义文件夹内\n"
+                  "[q] 取消解密,下载歌词时将忽略这些文件")
             select = rinput("请选择: ")
             if select == 'q':
                 target_path = "NOT_DECRYPT"
@@ -237,11 +240,11 @@ def get_lyric_from_folder(self):
             current_process = 0  # 当前正在活动的进程数
             passed = 0  # 总共结束的进程数
             with CompactBar(f"正在破解 %(index){len(str(len(ncm_files)))}d/%(max)d",
-                            suffix="", max=len(ncm_files), color="blue") as bar:
+                            suffix="", max=len(ncm_files), color="blue", width=9999) as bar:
                 total = len(ncm_files)
                 allocated = 0  # 已经分配的任务数量
                 while True:  # 进入循环，执行  新建进程->检测队列->检测任务完成  的循环
-                    sleep(0)
+                    sleep(0.05)
                     if current_process <= max_process and allocated < total:  # 分配进程
                         Process(target=process_work,
                                 args=(os.path.join(path, ncm_files[allocated]),
@@ -249,9 +252,9 @@ def get_lyric_from_folder(self):
                                       target_path,
                                       q_err,
                                       q_info)).start()
+                        bar.print_onto_bar("已分配: %s" % ncm_files[allocated])
                         allocated += 1
                         current_process += 1
-                        bar.update()
                     while True:  # 错误队列检测
                         try:
                             errors.append(q_err.get_nowait())
@@ -267,8 +270,9 @@ def get_lyric_from_folder(self):
                             musics.append({"id": r['musicId'], "name": r["musicName"], "artists": r["artist"]})
                             passed += 1
                             current_process -= 1
-                            bar.print_onto_bar(f"已完成: {r['musicName']} - "
-                                               f"{''.join([x + ', ' for x in [x[0] for x in r['artist']]])[:-2]}")
+                            bar.print_onto_bar(f"\"{r['musicName']} - "
+                                               f"{''.join([x + ', ' for x in [x[0] for x in r['artist']]])[:-2]}"
+                                               "\" 已完成!")
                             bar.next()
                         except Empty:
                             break

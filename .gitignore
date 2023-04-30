@@ -4,3 +4,4 @@ settings.json
 venv/
 venv_win/
 test/
+modules/test/

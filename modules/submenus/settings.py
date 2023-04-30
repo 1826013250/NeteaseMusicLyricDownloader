@@ -85,6 +85,10 @@ def __set_lyric_path(self):
         r += "/"
     path = ""
     for i in r.split("/"):
+        if len(i) >= 30:
+            input("抱歉, 目标或子目录名过长!至多30字符\n问题的目录: %s" % i)
+            return
+    for i in r.split("/"):
         path += i+"/"
         if not os.path.exists(path):
             os.mkdir(path)
