@@ -5,8 +5,9 @@ import os
 
 
 class Settings(object):  # 设定一个基础的存储设置信息的 class ,并设置形参用于 json 导入设置
-    def __init__(self, l_p="./out/", lang="en"):
+    def __init__(self, l_p="./out/", l_f="", lang="en"):
         self.lyric_path = l_p
+        self.lyric_format = l_f
         self.language = lang
 
 
@@ -24,7 +25,7 @@ def dict2class(adict):  # 让 json.load 将读取到的 dict 转化为我们所�
         return Settings(adict["lyric_path"], adict["language"])
 
 
-def load_settings():  # 加载 的函数
+def load_settings() -> Settings:  # 加载 的函数
     """加载设置
     调用即可，无需参数
     返回: 设置 class"""

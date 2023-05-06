@@ -1,6 +1,6 @@
 import re
 from modules.utils.inputs import rinput
-from modules.functions.get_song import get_song_lyric
+from modules.functions.mainly.get_song import get_song_lyric
 from modules.utils.clear_screen import clear
 
 
@@ -23,6 +23,6 @@ def download_one_lyric(self):
             input("不合法的形式.\n按回车键返回...")
             return
 
-    if get_song_lyric(song_id, self.settings.lyric_path) == "dl_err_connection":
+    if get_song_lyric(int(song_id), self.settings.lyric_path) == "dl_err_connection":
         input("下载发生错误!可能是连接被拒绝!请检查网络后再试\n按回车键返回...")
     input("按回车键返回...")

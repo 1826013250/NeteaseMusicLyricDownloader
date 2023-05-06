@@ -3,15 +3,18 @@
 # -*- coding: utf-8 -*-
 # author: David-123
 
+from sys import exit
+
+from colorama import init
 
 from modules.utils.inputs import rinput
 from modules.utils.information import print_info
-from modules.functions.multi_download import mdl
-from modules.functions.one_download import download_one_lyric
+from modules.functions.mainly.multi_download import mdl
+from modules.functions.mainly.one_download import download_one_lyric
 from modules.submenus.settings import settings_menu
-from modules.functions.save_load_settings import load_settings
-from modules.utils.clear_screen import clear
-from modules.functions.load_file_song import get_lyric_from_folder
+from modules.functions.settings.save_load_settings import load_settings
+from modules.utils.clear_screen import cls_stay
+from modules.functions.mainly.load_file_song import get_lyric_from_folder
 
 
 class MainProcess(object):
@@ -22,10 +25,8 @@ class MainProcess(object):
     def mainloop(self):
         """程序主循环"""
         while True:
-            clear()
-            print(f"[NeteaseMusicLyricDownloader] {self.version}\n"
-                  "[程序主菜单]\n"
-                  "[0] 退出程序\n[1] 单个歌曲的歌词下载\n[2] 多个歌曲的歌词下载\n[3] 从网易云下载的歌曲中获取歌词"
+            cls_stay(self, "[程序主菜单]")
+            print("[0] 退出程序\n[1] 单个歌曲的歌词下载\n[2] 多个歌曲的歌词下载\n[3] 从网易云下载的歌曲中获取歌词"
                   "\n[s] 进入设置\n[i] 程序信息")
             r = rinput("请选择:")
 
@@ -46,6 +47,7 @@ class MainProcess(object):
 
 
 if __name__ == "__main__":
+    init(autoreset=True)
     app = MainProcess()
     try:
         app.mainloop()

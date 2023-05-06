@@ -9,13 +9,15 @@ from time import sleep
 
 import mutagen.mp3
 from Cryptodome.Cipher import AES
+from Cryptodome.Util.Padding import unpad
 from mutagen import File, flac
 from mutagen.id3 import ID3, TPE1, APIC, COMM, TIT2, TALB
+from colorama import Fore, Style
 
-from modules.utils.clear_screen import clear
-from modules.functions.get_song import get_song_lyric
+from modules.utils.clear_screen import cls_stay
+from modules.functions.mainly.get_song import get_song_lyric
 from modules.utils.inputs import cinput, rinput
-from modules.utils.bar import CompactBar
+from modules.utils.bar import CompactBar, CompactArrowBar
 
 
 def load_information_from_song(path) -> str | dict:
@@ -43,20 +45,12 @@ def load_information_from_song(path) -> str | dict:
     else:
         return "not_support"
 
-    def unpad(s):  # 创建清理针对于网易云的 AES-128-ECB 解密后末尾占位符的函数
-        if type(s[-1]) == int:
-            end = s[-1]
-        else:
-            end = ord(s[-1])
-        return s[0:-end]
-        # return s[0:-(s[-1] if type(s[-1]) == int else ord(s[-1]))]  更加清晰的理解 ↑
-
     cryptor = AES.new(b"#14ljk_!\\]&0U<'(", AES.MODE_ECB)  # 使用密钥创建解密器
 
     # 下方这一行将密文 ciphertext 转换为 bytes 后进行 base64 解码, 得到加密过的 AES 密文
     # 再通过上方创建的 AES 128-ECB 的解密器进行解密, 然后使用 unpad 清除末尾无用的占位符后得到结果
     try:
-        r = unpad((cryptor.decrypt(b64decode(bytes(ciphertext, "utf-8"))).decode("utf-8")))
+        r = unpad(cryptor.decrypt(b64decode(bytes(ciphertext, "utf-8"))), 16).decode("utf-8")
     except ValueError:
         return "decrypt_failed"
 
@@ -72,9 +66,6 @@ def load_information_from_song(path) -> str | dict:
 def load_and_decrypt_from_ncm(file_path, target_dir) -> dict:  # nondanee的源代码, 根据需求更改了某些东西
     core_key = binascii.a2b_hex("687A4852416D736F356B496E62617857")
     meta_key = binascii.a2b_hex("2331346C6A6B5F215C5D2630553C2728")
-
-    def unpad(s):
-        return s[0:-(s[-1] if type(s[-1]) == int else ord(s[-1]))]
     f = open(file_path, 'rb')
     header = f.read(8)
     assert binascii.b2a_hex(header) == b'4354454e4644414d'
@@ -87,7 +78,7 @@ def load_and_decrypt_from_ncm(file_path, target_dir) -> dict:  # nondanee的源�
         key_data_array[i] ^= 0x64
     key_data = bytes(key_data_array)
     cryptor = AES.new(core_key, AES.MODE_ECB)
-    key_data = unpad(cryptor.decrypt(key_data))[17:]
+    key_data = unpad(cryptor.decrypt(key_data), 16)[17:]
     key_length = len(key_data)
     key_data = bytearray(key_data)
     key_box = bytearray(range(256))
@@ -112,7 +103,7 @@ def load_and_decrypt_from_ncm(file_path, target_dir) -> dict:  # nondanee的源�
     comment = meta_data
     meta_data = b64decode(meta_data[22:])
     cryptor = AES.new(meta_key, AES.MODE_ECB)
-    meta_data = unpad(cryptor.decrypt(meta_data)).decode('utf-8')[6:]
+    meta_data = unpad(cryptor.decrypt(meta_data), 16).decode('utf-8')[6:]
     meta_data = json.loads(meta_data)
     crc32 = f.read(4)
     crc32 = struct.unpack('<I', bytes(crc32))[0]
@@ -171,11 +162,8 @@ def process_work(path, filename, target, q_err: Queue, q_info: Queue):
 
 
 def get_lyric_from_folder(self):
-    clear()
-    path = cinput(
-        f"[NeteaseMusicLyricDownloader] {self.version}\n"
-        "[自动获取]\n"
-        "请输入歌曲的保存文件夹(绝对路径):")
+    cls_stay(self, "[自动获取 - 加载文件]")
+    path = cinput("请输入歌曲的保存文件夹(绝对路径):")
     if not os.path.exists(path):
         input("路径不存在.\n按回车返回...")
         return
@@ -239,8 +227,8 @@ def get_lyric_from_folder(self):
             max_process = 20  # 最大进程数
             current_process = 0  # 当前正在活动的进程数
             passed = 0  # 总共结束的进程数
-            with CompactBar(f"正在破解 %(index){len(str(len(ncm_files)))}d/%(max)d",
-                            suffix="", max=len(ncm_files), color="blue", width=9999) as bar:
+            with CompactArrowBar(f"正在解锁 %(index){len(str(len(ncm_files)))}d/%(max)d",
+                                 suffix="", max=len(ncm_files), color="green", width=9999) as bar:
                 total = len(ncm_files)
                 allocated = 0  # 已经分配的任务数量
                 while True:  # 进入循环，执行  新建进程->检测队列->检测任务完成  的循环
@@ -252,7 +240,7 @@ def get_lyric_from_folder(self):
                                       target_path,
                                       q_err,
                                       q_info)).start()
-                        bar.print_onto_bar("已分配: %s" % ncm_files[allocated])
+                        bar.print_onto_bar(Fore.CYAN + "已分配: " + Style.RESET_ALL + "%s" % ncm_files[allocated])
                         allocated += 1
                         current_process += 1
                     while True:  # 错误队列检测
@@ -270,16 +258,17 @@ def get_lyric_from_folder(self):
                             musics.append({"id": r['musicId'], "name": r["musicName"], "artists": r["artist"]})
                             passed += 1
                             current_process -= 1
-                            bar.print_onto_bar(f"\"{r['musicName']} - "
+                            bar.print_onto_bar(Fore.YELLOW +
+                                               f"\"{r['musicName']} - "
                                                f"{''.join([x + ', ' for x in [x[0] for x in r['artist']]])[:-2]}"
-                                               "\" 已完成!")
+                                               "\"" + Fore.GREEN + " 已完成!")
                             bar.next()
                         except Empty:
                             break
                     if passed >= len(ncm_files):
                         break
             if errors:
-                print("解密过程中发现了以下错误:")
+                print(Fore.LIGHTRED_EX+"解锁过程中发现了以下错误:")
                 for i in errors:
                     print(i)
 
@@ -304,18 +293,20 @@ def get_lyric_from_folder(self):
         else:
             try:
                 input("无效选择, 若取消请按 ^C ,继续请按回车")
-                clear()
             except KeyboardInterrupt:
                 return
 
-    clear()
-    for i in range(0, len(musics)):  # 根据索引结果获取歌词
-        print("\n进度: %d/%d" % (i + 1, len(musics)))
-        if get_song_lyric(musics[i], lyric_path, allinfo=True) == "dl_err_connection":
-            input("下载发生错误！可能是连接被拒绝!请检查网络后再试\n按回车键继续任务(该任务会被跳过)...")
+    cls_stay(self, "[自动获取 - 下载歌词]")
+    with CompactArrowBar(f"进度: %(index){len(str(len(musics)))}d/%(max)d",
+                         suffix="", max=len(musics), color="yellow", width=9999) as bar:
+        for i in range(0, len(musics)):  # 根据索引结果获取歌词
+            if get_song_lyric(musics[i], lyric_path, allinfo=True, bar=bar) == "dl_err_connection":
+                bar.print_onto_bar(Fore.RED + "下载发生错误！可能是连接被拒绝!请检查网络后再试\n按回车键继续任务(该任务会被跳过)...")
+                input()
+            bar.next()
     if ncm_files:
         if target_path != "NOT_DECRYPT":
-            agree = rinput("是否删除原ncm文件? (y/n)")
+            agree = rinput(Fore.RED + "是否删除原ncm文件? (y/n)")
             if agree == "y":
                 for i in range(0, len(ncm_files)):
                     print("删除进度: %d/%d\n -> %s\033[F" % (i + 1, len(ncm_files), ncm_files[i]), end="")
