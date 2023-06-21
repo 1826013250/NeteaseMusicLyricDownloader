@@ -8,7 +8,7 @@ from sys import exit
 from colorama import init
 
 from modules.utils.inputs import rinput
-from modules.utils.information import print_info
+from modules.utils.prints import print_info, print_menu
 from modules.functions.mainly.multi_download import mdl
 from modules.functions.mainly.one_download import download_one_lyric
 from modules.submenus.settings import settings_menu
@@ -26,8 +26,14 @@ class MainProcess(object):
         """程序主循环"""
         while True:
             cls_stay(self, "[程序主菜单]")
-            print("[0] 退出程序\n[1] 单个歌曲的歌词下载\n[2] 多个歌曲的歌词下载\n[3] 从网易云下载的歌曲中获取歌词"
-                  "\n[s] 进入设置\n[i] 程序信息")
+            print_menu({
+                "0": "退出程序",
+                "1": "单个歌曲的歌词下载",
+                "2": "多个歌曲的歌词下载",
+                "3": "从网易云下载的歌曲中获取歌词",
+                "s": "进入设置",
+                "i": "程序信息",
+            })
             r = rinput("请选择:")
 
             if r == "1":

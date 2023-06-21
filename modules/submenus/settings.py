@@ -1,17 +1,29 @@
 """集合设置参数"""
 
 import os
+from colorama import Fore
 from modules.utils.clear_screen import cls_stay
 from modules.utils.inputs import rinput, cinput
 from modules.functions.settings.save_load_settings import save_settings
+from modules.utils.prints import print_menu
 
 
 def settings_menu(self):
     """设置菜单主循环"""
     while True:
-        cls_stay(self, "[设置菜单]")
-        print("[0] 返回上级\n[1] 歌曲保存路径\n[2] 清空输出文件夹内的内容\n[3] 歌词文件保存格式\n[4] 部分动态效果\n"
-              "[s] 将设置保存到文件")
+        if self.settings.auto_save:
+            save_settings(self.settings)
+        cls_stay(self, f"[设置菜单] "
+                       f"{Fore.LIGHTCYAN_EX}自动保存: "
+                       f"{({True: f'{Fore.GREEN}开', False: f'{Fore.RED}关'}[self.settings.auto_save])}")
+        print_menu({
+            "0": "返回上级菜单",
+            "1": "歌曲保存路径",
+            "2": "清空输出文件夹内的内容",
+            "3": "歌词文件保存格式",
+            "4": "部分动态效果",
+            "s": "切换设置自动保存"
+        })
         r = rinput("请选择:")
         if r == "0":
             return
@@ -24,7 +36,7 @@ def settings_menu(self):
         elif r == "4":
             pass
         elif r == "s":
-            __save_settings(self)
+            self.settings.auto_save = not self.settings.auto_save
         else:
             input("输入无效！按回车键继续...")
 
