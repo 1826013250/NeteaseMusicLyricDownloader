@@ -1,6 +1,6 @@
 NeteaseMusicLyricDownloader
 ===========================
-**English**|[简体中文](./README.md)
+[简体中文](https://github.com/1826013250/NeteaseMusicLyricDownloader)|**English**
 
 A simple tool to download lyrics in Netease Music
 

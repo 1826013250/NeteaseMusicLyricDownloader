@@ -1,5 +1,5 @@
 # NeteaseMusicLyricDownloader
-[English](./README_en.md)|**简体中文**
+**简体中文**|[English](./README_en.md)
 
 一个下载网易云音乐歌词的简单工具
 
