@@ -4,6 +4,8 @@ NeteaseMusicLyricDownloader
 
 A simple tool to download lyrics in Netease Music
 
+_*Caution:* The author is not native English speaker. If there are some grammar mistakes, please ignore them. Thanks!!!!_
+
 ## How does it work?
 It uses the module `requests` to fetch the lyric on music.163.com
 
@@ -35,4 +37,4 @@ Add more functions like searching...
 
 Just a easy program...
 
-I haven't much time to focus on it...
+I don't have much time to focus on it...
