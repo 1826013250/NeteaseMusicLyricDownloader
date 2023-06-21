@@ -6,6 +6,7 @@ from time import sleep
 from colorama import Fore, Style
 
 from modules.utils.bar import CompactBar, bprint
+from modules.utils.dump import regular_filename
 
 
 def wait_retry(kind, identify, bar=None):
@@ -90,20 +91,9 @@ def get_song_lyric(identify: str | int | dict, path: str, allinfo: bool = False,
     if not name:
         bprint(Fore.RED + "歌曲错误!这是网易云的问题,请不要找作者", bar)
         return "song_err"
-    replaces = {  # 处理非法字符所用的替换字典(根据网易云下载的文件分析得到)
-        "|": "｜",
-        ":": "：",
-        "<": "＜",
-        ">": "＞",
-        "?": "？",
-        "/": "／",
-        "\\": "＼",
-        "*": "＊",
-        '"': "＂"
-    }
-    for k, v in replaces.items():
-        name = name.replace(k, v)
-        artists = artists.replace(k, v)
+
+    name = regular_filename(name)
+    artists = regular_filename(artists)
 
     bprint(Fore.YELLOW + "\t-> 歌曲:" + Style.RESET_ALL + f"{name} - {artists}", bar)
     filename = f"{name} - {artists}.lrc"

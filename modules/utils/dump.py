@@ -10,6 +10,24 @@ from Cryptodome.Util.strxor import strxor as xor
 from mutagen import mp3, flac, id3
 
 
+def regular_filename(filename):
+    """处理替换非法字符"""
+    replaces = {  # 处理非法字符所用的替换字典(根据网易云下载的文件分析得到)
+        "|": "｜",
+        ":": "：",
+        "<": "＜",
+        ">": "＞",
+        "?": "？",
+        "/": "／",
+        "\\": "＼",
+        "*": "＊",
+        '"': "＂"
+    }
+    for k, v in replaces.items():
+        filename = filename.replace(k, v)
+    return filename
+
+
 def load_and_decrypt_from_ncm(file_path, target_dir, out_format) -> dict | str:  # author: Nzix Repo: nondanee
 
     core_key = binascii.a2b_hex('687A4852416D736F356B496E62617857')
@@ -72,9 +90,9 @@ def load_and_decrypt_from_ncm(file_path, target_dir, out_format) -> dict | str: 
 
     # media data
     if meta_length:
-        output_path = os.path.join(target_dir, out_format % {"name": meta_data["musicName"], "artists": "".join(
+        output_path = os.path.join(target_dir, regular_filename(out_format % {"name": meta_data["musicName"], "artists": "".join(
             [x[0]+"," for x in meta_data["artist"]]
-        )[:-1]} + "." + meta_data["format"])
+        )[:-1]} + "." + meta_data["format"]))
     else:
         output_path = os.path.join(target_dir, "Unnamed." + meta_data["format"])
 
