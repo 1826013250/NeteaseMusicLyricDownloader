@@ -1,40 +1,36 @@
-NeteaseMusicLyricDownloader
-===========================
-**English**|[简体中文](./README_cn.md)
+# NeteaseMusicLyricDownloader
+**简体中文**|[English](./README_en.md)
 
-A simple tool to download lyrics in Netease Music
+一个下载网易云音乐歌词的简单工具
 
-_*Caution:* The author is not native English speaker. If there are some grammar mistakes, please ignore them. Thanks!!!!_
+## 这个玩意原理是啥?
+它用了Python中的一个`requests`模块来实现抓取歌词文件的功能
 
-## How does it work?
-It uses the module `requests` to fetch the lyric on music.163.com
+网易云音乐提供给我们了一个获取歌词的API ~~然后我就做了这个程序（~~
 
-Netease Music supply us an api that we can get the lyric of the current song, so I make this program...
+## 爷要安装
+首先，你需要一个Python环境(要求版本>=3.10,因为使用了3.10python的新特性)
 
-## Installation
-First, you need a python(>=3.10) environment
-
-Second, clone the entire project and install packages with the command below:
+然后，把整个项目薅下来，安装依赖项目：
 ```commandline
 python3 -m pip install -r requirements.txt
 ```
-Last, run the command `python3 main.py` in the project folder.
+最后运行下面命令：
+```commandline
+python3 main.py
+```
 
-## What can it do?
-Just download lyrics.
+## 这玩意到底能干啥?
+~~nmd~~这玩意就像它的名字一样，下载歌词用的
 
-You need to provide the id or the share link of the song, and the program will download the lyrics automatically.
+你需要提供歌曲的id或者分享链接，或者已经下好的歌曲路径，然后这破玩意就会自动下载歌词
 
-Now it can recognize 163 key in music files that download from Netease Cloudmusic client.
+## 后续有啥功能？
 
-- 2022/8/13 Now it has the function from `ncmdump`, and it can decrypt the ncm files and fetch the specific lyric.
+_~~我不造，要不你来写罢（~~_
 
-## Todo
+## 其他要说的
 
-Add more functions like searching...
+这就一简简单单普普通通的程序
 
-## Others
-
-Just a easy program...
-
-I don't have much time to focus on it...
+我可能也没有太多的精力去写这么个~~破玩意~~...
