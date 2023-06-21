@@ -20,7 +20,7 @@ from modules.functions.mainly.load_file_song import get_lyric_from_folder
 class MainProcess(object):
     def __init__(self):  # 项目初始化
         self.settings = load_settings()
-        self.version = "1.0"
+        self.version = "1.1.1"
 
     def mainloop(self):
         """程序主循环"""
