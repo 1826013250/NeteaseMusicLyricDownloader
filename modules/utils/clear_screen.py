@@ -13,8 +13,8 @@ def clear():
         os.system("clear")
 
 
-def cls_stay(self, custom=""):
+def cls_stay(self, custom="", *args, **kwargs):
     """保留版本号清除屏幕"""
     clear()
     print(f"{Fore.YELLOW}[{Fore.GREEN}NeteaseMusicLyricDownloader{Fore.YELLOW}] {Fore.LIGHTBLACK_EX}{self.version}")
-    print(Fore.LIGHTMAGENTA_EX+custom)
+    print(Fore.LIGHTMAGENTA_EX+custom, *args, **kwargs)

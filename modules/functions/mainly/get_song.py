@@ -59,11 +59,16 @@ def get_song_info_raw(types: list, identify: str, bar: CompactBar = None):
             return need
 
 
-def get_song_lyric(identify: str | int | dict, path: str, allinfo: bool = False, bar: CompactBar = None):
+def get_song_lyric(identify: str | int | dict,
+                   path: str,
+                   lyric_format="%(name)s - %(artists)s",
+                   allinfo: bool = False,
+                   bar: CompactBar = None):
     """获取歌词
     
     ``identify`` 提供一个歌曲id
     ``path`` 提供歌曲下载的路径
+    ``lyric_format`` 提供歌词保存的格式
     ``allinfo`` 若此项为 True ,则提供的identify格式必须为存储在网易云下载文件中meta_data的格式
     ``bar`` 若获取歌词时下方有进度条, 则应当传入此参数"""
     if allinfo:
@@ -96,7 +101,7 @@ def get_song_lyric(identify: str | int | dict, path: str, allinfo: bool = False,
     artists = regular_filename(artists)
 
     bprint(Fore.YELLOW + "\t-> 歌曲:" + Style.RESET_ALL + f"{name} - {artists}", bar)
-    filename = f"{name} - {artists}.lrc"
+    filename = f"{lyric_format % {'name': name, 'artists': artists}}.lrc"
 
     try:
         info = post(f"https://music.163.com/api/song/media?id={identify}").json()

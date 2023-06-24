@@ -5,7 +5,7 @@ from colorama import Fore
 from modules.utils.clear_screen import cls_stay
 from modules.utils.inputs import rinput, cinput
 from modules.functions.settings.save_load_settings import save_settings
-from modules.utils.prints import print_menu
+from modules.utils.prints import input_menu
 
 
 def settings_menu(self):
@@ -16,7 +16,7 @@ def settings_menu(self):
         cls_stay(self, f"[设置菜单] "
                        f"{Fore.LIGHTCYAN_EX}自动保存: "
                        f"{({True: f'{Fore.GREEN}开', False: f'{Fore.RED}关'}[self.settings.auto_save])}")
-        print_menu({
+        r = input_menu({
             "0": "返回上级菜单",
             "1": "歌曲保存路径",
             "2": "清空输出文件夹内的内容",
@@ -24,7 +24,6 @@ def settings_menu(self):
             "4": "部分动态效果",
             "s": "切换设置自动保存"
         })
-        r = rinput("请选择:")
         if r == "0":
             return
         elif r == "1":
@@ -32,7 +31,7 @@ def settings_menu(self):
         elif r == "2":
             __remove_output_files(self)
         elif r == "3":
-            pass
+            __set_lyric_format(self)
         elif r == "4":
             pass
         elif r == "s":
@@ -44,8 +43,12 @@ def settings_menu(self):
 def __remove_output_files(self):
     while True:
         cls_stay(self, "[设置菜单 - 删除文件]")
-        print("[0] 返回上级\n[1] 清除歌词文件\n[2] 清除歌曲文件\n[a] 清除所有文件")
-        r = rinput("请选择:")  # 选择清除的文件格式
+        r = input_menu({
+            "0": "返回上级",
+            "1": "清除歌词文件",
+            "2": "清除歌曲文件",
+            "a": "清除所有文件",
+        })  # 选择清除的文件格式
         if r == "0":
             return
         elif r == "1":
@@ -84,7 +87,7 @@ def __remove_output_files(self):
 def __set_lyric_path(self):
     cls_stay(self, "[设置菜单 - 保存路径]")
     print("允许使用相对路径和绝对路径，默认为\"./out/\"\n请*不要*使用反斜杠来确保通用性\n"
-          "当前值:%s\n请输入新的歌词保存路径:" % self.settings.lyric_path)
+          "当前值:%s\n留空回车取消当前设置\n请输入新的歌词保存路径:" % self.settings.lyric_path)
     r = cinput()
     if not r:
         input("输入为空!\n按回车继续...")
@@ -107,5 +110,31 @@ def __set_lyric_path(self):
 
 
 def __set_lyric_format(self):
-    pass
-
+    while True:
+        cls_stay(self, f"[设置菜单 - 文件名格式]\n{Fore.LIGHTCYAN_EX}当前格式: ", end="")
+        if self.settings.lyric_format == "%(name)s":
+            print(f"{Fore.GREEN}曲名", end="")
+        else:
+            print(Fore.GREEN + self.settings.lyric_format % {"name": "曲名", "artists": "歌手名"}, end="")
+        print(".xxx")
+        r = input_menu({
+            "0": "返回上级",
+            "1": "%(name)s - %(artists)s" % {"name": "曲名", "artists": "歌手名"},
+            "2": "%(artists)s - %(name)s" % {"name": "曲名", "artists": "歌手名"},
+            "3": "%(name)s" % {"name": "曲名", "artists": "歌手名"},
+        })
+        if r == "0":
+            return
+        elif r == "1":
+            self.settings.lyric_format = "%(name)s - %(artists)s"
+            break
+        elif r == "2":
+            self.settings.lyric_format = "%(artists)s - %(name)s"
+            break
+        elif r == "3":
+            self.settings.lyric_format = "%(name)s"
+            break
+        else:
+            input("输入无效!\n按回车继续...")
+    input("修改成功! \n按回车返回...")
+    return

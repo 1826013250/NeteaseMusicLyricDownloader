@@ -90,7 +90,8 @@ def load_and_decrypt_from_ncm(file_path, target_dir, out_format) -> dict | str: 
 
     # media data
     if meta_length:
-        output_path = os.path.join(target_dir, regular_filename(out_format % {"name": meta_data["musicName"], "artists": "".join(
+        output_path = os.path.join(target_dir, regular_filename(out_format % {"name": meta_data["musicName"],
+                                                                              "artists": "".join(
             [x[0]+"," for x in meta_data["artist"]]
         )[:-1]} + "." + meta_data["format"]))
     else:

@@ -217,7 +217,7 @@ def get_lyric_from_folder(self):
     with CompactArrowBar(f"进度: %(index){len(str(len(musics)))}d/%(max)d",
                          suffix="", max=len(musics), color="yellow", width=9999) as bar:
         for i in range(0, len(musics)):  # 根据索引结果获取歌词
-            if get_song_lyric(musics[i], lyric_path, allinfo=True, bar=bar) == "dl_err_connection":
+            if get_song_lyric(musics[i], lyric_path, self.settings.lyric_format, True, bar) == "dl_err_connection":
                 bar.print_onto_bar(Fore.RED + "下载发生错误！可能是连接被拒绝!请检查网络后再试\n按回车键继续任务(该任务会被跳过)...")
                 input()
             bar.next()
