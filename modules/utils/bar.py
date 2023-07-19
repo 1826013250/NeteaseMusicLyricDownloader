@@ -11,9 +11,9 @@ class CompactBar(Bar):
     def print_onto_bar(self, message: str):
         """在进度条的上方打印消息，进度条保持在下方"""
         # 光标移动到行首，并通过打印空格清空残留的进度条 ↓
-        print(f"\x1b[{get_terminal_size().columns}D{(get_terminal_size().columns - 1) * ' '}"
-              # 光标移动到该行的首部(\x1b[nD, n为前移个数)，将需要的信息打印出来，再将光标移动到下一行 ↓
-              f"\x1b[{get_terminal_size().columns}D" + message)
+        print(f"\033[{get_terminal_size().columns}D{(get_terminal_size().columns - 1) * ' '}"
+              # 光标移动到该行的首部(\033[nD, n为前移个数)，将需要的信息打印出来，再将光标移动到下一行 ↓
+              f"\033[{get_terminal_size().columns}D" + message)
         self.update()  # 更新进度条
 
     def writeln(self, line, shorten=False):

@@ -41,8 +41,12 @@ def load_settings() -> Settings:  # 加载 的函数
         with open("settings.json", 'r', encoding="utf-8") as f:
             try:
                 settings = json.load(f, object_hook=dict2class)  # 尝试转换 json 为 dict
+                path = ""
                 if not os.path.exists(settings.lyric_path):  # 检测输出文件夹,若文件夹不存在则在启动时创建
-                    os.mkdir(settings.lyric_path)
+                    for i in settings.lyric_path.split("/"):
+                        path += i + "/"
+                        if not os.path.exists(path):
+                            os.mkdir(path)
                 return settings
             except json.decoder.JSONDecodeError or KeyError:  # 如果检测到文件无法读取,将会删除设置文件并重新创建
                 print("设置文件损坏,重新创建...")

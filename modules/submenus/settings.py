@@ -1,7 +1,7 @@
 """集合设置参数"""
 
 import os
-from colorama import Fore
+from colorama import Fore, Style
 from modules.utils.clear_screen import cls_stay
 from modules.utils.inputs import rinput, cinput
 from modules.functions.settings.save_load_settings import save_settings
@@ -86,8 +86,11 @@ def __remove_output_files(self):
 
 def __set_lyric_path(self):
     cls_stay(self, "[设置菜单 - 保存路径]")
-    print("允许使用相对路径和绝对路径，默认为\"./out/\"\n请*不要*使用反斜杠来确保通用性\n"
-          "当前值:%s\n留空回车取消当前设置\n请输入新的歌词保存路径:" % self.settings.lyric_path)
+    print(f"""允许使用相对路径和绝对路径，默认为"./out/"
+请{Fore.RED}*不要*{Style.RESET_ALL}使用{Fore.BLUE}反斜杠{Style.RESET_ALL}来确保通用性
+当前值:{Fore.GREEN}{self.settings.lyric_path}{Style.RESET_ALL}
+留空回车取消当前设置
+请输入新的歌词保存路径:""")
     r = cinput()
     if not r:
         input("输入为空!\n按回车继续...")
