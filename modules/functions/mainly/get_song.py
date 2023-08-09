@@ -30,7 +30,7 @@ def wait_retry(kind, identify, bar=None):
 
 def get_song_info_raw(types: list, identify: str, bar: CompactBar = None):
     """获取歌曲信息
-    
+
     ``types`` 提供一个list,将会返回内部所有符合要求的信息类型\n
     ``identify`` 提供一个歌曲id(str),将会把歌曲的`types`信息返回"""
     bprint(Fore.CYAN + "ID:%s" % identify, bar)
@@ -63,9 +63,10 @@ def get_song_lyric(identify: str | int | dict,
                    path: str,
                    lyric_format="%(name)s - %(artists)s",
                    allinfo: bool = False,
-                   bar: CompactBar = None):
+                   bar: CompactBar = None,
+                   save_lyrics_time: bool = True):
     """获取歌词
-    
+
     ``identify`` 提供一个歌曲id
     ``path`` 提供歌曲下载的路径
     ``lyric_format`` 提供歌词保存的格式
@@ -122,6 +123,12 @@ def get_song_lyric(identify: str | int | dict,
         return
     else:
         with open(os.path.join(path, filename), "w", encoding="utf-8") as f:
-            f.write(info["lyric"])
-        bprint(Fore.GREEN + "\t--> 歌词下载完成!被保存在" + Style.RESET_ALL + f"{os.path.join(path, filename)}\n", bar)
+            if not save_lyrics_time:
+                for lyric in info["lyric"].split("\n"):
+                    print(lyric)
+                    f.write("".join(lyric.split("]")[1:]))
+                    f.write('\n')
+            else:
+                f.write(info["lyric"])
+        bprint(Fore.GREEN + "\t--> 歌词下载完成!文件被保存在" + Style.RESET_ALL + f"{os.path.join(path, filename)}\n", bar)
         return

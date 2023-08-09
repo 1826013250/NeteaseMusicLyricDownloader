@@ -15,29 +15,36 @@ def settings_menu(self):
             save_settings(self.settings)
         cls_stay(self, f"[设置菜单] "
                        f"{Fore.LIGHTCYAN_EX}自动保存: "
-                       f"{({True: f'{Fore.GREEN}开', False: f'{Fore.RED}关'}[self.settings.auto_save])}")
+                       f"{({True: f'{Fore.GREEN}开', False: f'{Fore.RED}关'}[self.settings.auto_save])} \t"
+                       f"{Fore.LIGHTCYAN_EX}保存每句歌词的时间: "
+                       f"{({True: f'{Fore.GREEN}开', False: f'{Fore.RED}关'}[self.settings.save_lyrics_time])}"
+                       )
         r = input_menu({
             "0": "返回上级菜单",
             "1": "歌曲保存路径",
             "2": "清空输出文件夹内的内容",
-            "3": "歌词文件保存格式",
+            "3": "歌词文件名保存格式",
             "4": "部分动态效果",
-            "s": "切换设置自动保存"
+            "5": "切换是否保存每句歌词的时间",
+            "s": "切换设置是否自动保存",
         })
-        if r == "0":
-            return
-        elif r == "1":
-            __set_lyric_path(self)
-        elif r == "2":
-            __remove_output_files(self)
-        elif r == "3":
-            __set_lyric_format(self)
-        elif r == "4":
-            pass
-        elif r == "s":
-            self.settings.auto_save = not self.settings.auto_save
-        else:
-            input("输入无效！按回车键继续...")
+        match r:
+            case "0":
+                return
+            case "1":
+                __set_lyric_path(self)
+            case "2":
+                __remove_output_files(self)
+            case "3":
+                __set_lyric_filename_format(self)
+            case "4":
+                pass
+            case "5":
+                self.settings.save_lyrics_time = not self.settings.save_lyrics_time
+            case "s":
+                self.settings.auto_save = not self.settings.auto_save
+            case _:
+                input("输入无效！按回车键继续...")
 
 
 def __remove_output_files(self):
@@ -112,7 +119,7 @@ def __set_lyric_path(self):
     return
 
 
-def __set_lyric_format(self):
+def __set_lyric_filename_format(self):
     while True:
         cls_stay(self, f"[设置菜单 - 文件名格式]\n{Fore.LIGHTCYAN_EX}当前格式: ", end="")
         if self.settings.lyric_format == "%(name)s":
