@@ -5,11 +5,12 @@ import os
 
 
 class Settings(object):  # 设定一个基础的存储设置信息的 class ,并设置形参用于 json 导入设置
-    def __init__(self, l_p="./out/", l_f="%(name)s - %(artists)s", lang="en", a_s=True):
+    def __init__(self, l_p="./out/", l_f="%(name)s - %(artists)s", lang="en", a_s=True, s_l_t = True):
         self.lyric_path = l_p
         self.lyric_format = l_f
         self.language = lang
         self.auto_save = a_s
+        self.save_lyrics_time = s_l_t
 
 
 def class2dict(aclass: Settings):  # 让 json.dumps 将 class 转化为一个 dict ,用于保存
@@ -17,7 +18,8 @@ def class2dict(aclass: Settings):  # 让 json.dumps 将 class 转化为一个 di
         "lyric_path": aclass.lyric_path,
         "lyric_format": aclass.lyric_format,
         "language": aclass.language,
-        "auto_save": aclass.auto_save
+        "auto_save": aclass.auto_save,
+        "save_lyrics_time": aclass.save_lyrics_time
     }
 
 
@@ -29,7 +31,8 @@ def dict2class(adict):  # 让 json.load 将读取到的 dict 转化为我们所�
             l_p=adict["lyric_path"],
             l_f=adict["lyric_format"],
             lang=adict["language"],
-            a_s=adict["auto_save"]
+            a_s=adict["auto_save"],
+            s_l_t=adict["save_lyrics_time"]
         )
 
 
