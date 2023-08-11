@@ -12,3 +12,7 @@ modules/functions/mainly/__pycache__
 modules/functions/settings/__pycache__
 modules/submenus/__pycache__
 modules/utils/__pycache__
+
+node_modules
+package.json
+yarn.lock

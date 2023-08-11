@@ -3,8 +3,7 @@ from colorama import Fore
 
 from modules.utils.clear_screen import cls_stay
 from modules.utils.inputs import rinput
-from modules.functions.mainly.get_song import get_song_lyric
-from modules.utils.bar import CompactArrowBar
+from modules.functions.mainly.download_multiple_songs import donload_multiple_songs
 
 
 def mdl(self):
@@ -31,12 +30,6 @@ def mdl(self):
             ids.append(int(r))
             print("\t#%d id:%s - 已添加!" % (len(ids), r))
     cls_stay(self, "[手动-多个下载]")
-    with CompactArrowBar(f"进度: %(index){len(str(len(ids)))}d/%(max)d",
-                         suffix="", max=len(ids), color="yellow", width=9999) as bar:
-        for i in range(0, len(ids)):
-            r = get_song_lyric(ids[i], self.settings.lyric_path, self.settings.lyric_path, bar=bar)
-            if r == "dl_err_connection":
-                bar.print_onto_bar(Fore.RED + "下载发生错误！可能是连接被拒绝!请检查网络后再试\n按回车键继续任务(该任务会被跳过)...")
-                input()
-            bar.next()
+    donload_multiple_songs(self, self.settings.lyric_path, ids)
+
     input("按回车键返回...")
