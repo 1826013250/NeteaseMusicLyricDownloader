@@ -56,19 +56,21 @@ def __remove_output_files(self):
             "2": "清除歌曲文件",
             "a": "清除所有文件",
         })  # 选择清除的文件格式
-        if r == "0":
-            return
-        elif r == "1":
-            dellist = [".lrc"]
-            break
-        elif r == "2":
-            dellist = [".mp3", ".flac"]
-            break
-        elif r == "a":
-            dellist = ["ALL"]
-            break
-        else:
-            input("输入无效!\n按回车键继续...")
+
+        match r:
+            case "0":
+                return
+            case "1":
+                dellist = [".lrc"]
+                break
+            case "2":
+                dellist = [".mp3", ".flac"]
+                break
+            case "a":
+                dellist = ["ALL"]
+                break
+            case _:
+                input("输入无效!\n按回车键继续...")
     files = []
     for i in os.listdir(self.settings.lyric_path):  # 列出所有文件
         if dellist[0] == "ALL":
@@ -133,18 +135,19 @@ def __set_lyric_filename_format(self):
             "2": "%(artists)s - %(name)s" % {"name": "曲名", "artists": "歌手名"},
             "3": "%(name)s" % {"name": "曲名", "artists": "歌手名"},
         })
-        if r == "0":
-            return
-        elif r == "1":
-            self.settings.lyric_format = "%(name)s - %(artists)s"
-            break
-        elif r == "2":
-            self.settings.lyric_format = "%(artists)s - %(name)s"
-            break
-        elif r == "3":
-            self.settings.lyric_format = "%(name)s"
-            break
-        else:
-            input("输入无效!\n按回车继续...")
+        match r:
+            case "0":
+                return
+            case "1":
+                self.settings.lyric_format = "%(name)s - %(artists)s"
+                break
+            case "2":
+                self.settings.lyric_format = "%(artists)s - %(name)s"
+                break
+            case "3":
+                self.settings.lyric_format = "%(name)s"
+                break
+            case _:
+                input("输入无效!\n按回车继续...")
     input("修改成功! \n按回车返回...")
     return

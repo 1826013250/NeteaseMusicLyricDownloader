@@ -103,6 +103,8 @@ def get_song_lyric(identify: str | int | dict,
 
     bprint(Fore.YELLOW + "\t-> 歌曲:" + Style.RESET_ALL + f"{name} - {artists}", bar)
     filename = f"{lyric_format % {'name': name, 'artists': artists}}.lrc"
+    if len(filename) >= 128:
+        filename = filename[:123] + ".lrc"
 
     try:
         info = post(f"https://music.163.com/api/song/media?id={identify}").json()

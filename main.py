@@ -15,6 +15,7 @@ from modules.submenus.settings import settings_menu
 from modules.functions.settings.save_load_settings import load_settings
 from modules.utils.clear_screen import cls_stay
 from modules.functions.mainly.load_file_song import get_lyric_from_folder
+from modules.functions.mainly.playlist_download import download_by_playlist
 
 
 class MainProcess(object):
@@ -29,27 +30,31 @@ class MainProcess(object):
             print_menu({
                 "0": "退出程序",
                 "1": "单个歌曲的歌词下载",
-                "2": "多个歌曲的歌词下载",
-                "3": "从网易云下载的歌曲中获取歌词",
+                "2": "通过歌单下载",
+                "3": "多个歌曲的歌词下载",
+                "4": "从网易云下载的歌曲中获取歌词",
                 "s": "进入设置",
                 "i": "程序信息",
             })
             r = rinput("请选择:")
 
-            if r == "1":
-                download_one_lyric(self)
-            elif r == "2":
-                mdl(self)
-            elif r == "3":
-                get_lyric_from_folder(self)
-            elif r == "0":
-                exit(0)
-            elif r == "i":
-                print_info(self)
-            elif r == "s":
-                settings_menu(self)
-            else:
-                input("请输入正确的选项\n按回车键继续...")
+            match r:
+                case "1":
+                    download_one_lyric(self)
+                case "2":
+                    download_by_playlist(self)
+                case "3":
+                    mdl(self)
+                case "4":
+                    get_lyric_from_folder(self)
+                case "0":
+                    exit(0)
+                case "i":
+                    print_info(self)
+                case "s":
+                    settings_menu(self)
+                case _:
+                    input("请输入正确的选项\n按回车键继续...")
 
 
 if __name__ == "__main__":
