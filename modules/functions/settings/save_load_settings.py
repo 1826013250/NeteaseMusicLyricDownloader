@@ -46,10 +46,7 @@ def load_settings() -> Settings:  # 加载 的函数
                 settings = json.load(f, object_hook=dict2class)  # 尝试转换 json 为 dict
                 path = ""
                 if not os.path.exists(settings.lyric_path):  # 检测输出文件夹,若文件夹不存在则在启动时创建
-                    for i in settings.lyric_path.split("/"):
-                        path += i + "/"
-                        if not os.path.exists(path):
-                            os.mkdir(path)
+                    os.makedirs(settings.lyric_path, exist_ok=True)
                 return settings
             except json.decoder.JSONDecodeError or KeyError:  # 如果检测到文件无法读取,将会删除设置文件并重新创建
                 print("设置文件损坏,重新创建...")
@@ -58,7 +55,9 @@ def load_settings() -> Settings:  # 加载 的函数
     else:
         with open("settings.json", 'w', encoding="utf-8") as f:  # 当 settings.json 不存在时新建一个 settings.json 并写入默认配置
             f.write(json.dumps(Settings(), default=class2dict))
-            return Settings()
+            settings = Settings()
+            os.makedirs(settings.lyric_path, exist_ok=True)
+            return settings
 
 
 def save_settings(settings):  # 保存 的函数
