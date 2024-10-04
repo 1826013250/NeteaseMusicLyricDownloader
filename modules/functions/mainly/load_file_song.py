@@ -147,7 +147,7 @@ def get_lyric_from_folder(self):
                                  suffix="", max=len(ncm_files), color="green", width=9999) as bar:
                 total = len(ncm_files)
                 allocated = 0  # 已经分配的任务数量
-                while True:  # 进入循环，执行  新建进程->检测队列->检测任务完成  的循环
+                while True:  # 进入循环，执行  "新建进程->检测队列->检测任务完成"  的循环
                     sleep(0.05)
                     if current_process <= max_process and allocated < total:  # 分配进程
                         Process(target=process_work,
@@ -176,7 +176,7 @@ def get_lyric_from_folder(self):
                             passed += 1
                             current_process -= 1
                             bar.print_onto_bar(Fore.YELLOW +
-                                               f"\"{r['musicName']} - "
+                                               f"\"{r['musicName']} by "
                                                f"{''.join([x + ', ' for x in [x[0] for x in r['artist']]])[:-2]}"
                                                "\"" + Fore.GREEN + " 已完成!")
                             bar.next()

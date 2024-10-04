@@ -8,6 +8,7 @@ from Cryptodome.Cipher import AES
 from Cryptodome.Util.Padding import unpad
 from Cryptodome.Util.strxor import strxor as xor
 from mutagen import mp3, flac, id3
+from modules.utils.wrappers import escape_file_not_found, escape_permission_error
 
 
 def regular_filename(filename):
@@ -28,7 +29,14 @@ def regular_filename(filename):
     return filename
 
 
-def load_and_decrypt_from_ncm(file_path, target_dir, out_format) -> dict | str:  # author: Nzix Repo: nondanee
+@escape_file_not_found
+@escape_permission_error
+def load_and_decrypt_from_ncm(file_path, target_dir, out_format, return_output_path=False) -> dict | str | tuple:
+    # Original author: Nzix Repo: nondanee
+    """解锁指定文件并按照规则保存在指定位置
+    ``file_path`` 源文件路径
+    ``target_dir`` 解锁后文件保存路径
+    ``out_format`` 输出文件格式，使用“字典”格式字符串，若使用源文件名仅替换后缀则传入\"original\""""
 
     core_key = binascii.a2b_hex('687A4852416D736F356B496E62617857')
     meta_key = binascii.a2b_hex('2331346C6A6B5F215C5D2630553C2728')
@@ -89,7 +97,9 @@ def load_and_decrypt_from_ncm(file_path, target_dir, out_format) -> dict | str: 
     f.seek(image_space - image_size, 1)
 
     # media data
-    if meta_length:
+    if out_format == "original":
+        output_path = f"{os.path.splitext(file_path)[0]}.{meta_data['format']}"
+    elif meta_length:
         output_path = os.path.join(target_dir, regular_filename(out_format % {"name": meta_data["musicName"],
                                                                               "artists": "".join(
             [x[0]+"," for x in meta_data["artist"]]
@@ -145,6 +155,12 @@ def load_and_decrypt_from_ncm(file_path, target_dir, out_format) -> dict | str: 
             audio['album'] = meta_data['album']
             audio['artist'] = '/'.join([artist[0] for artist in meta_data['artist']])
             audio.save()
-        return meta_data
+        if return_output_path:
+            return meta_data, output_path
+        else:
+            return meta_data
     else:
-        return "no_meta_data"
+        if return_output_path:
+            return "no_meta_data", output_path
+        else:
+            return "no_meta_data"

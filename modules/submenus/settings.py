@@ -24,20 +24,21 @@ def settings_menu(self):
             "4": "部分动态效果",
             "s": "切换设置自动保存"
         })
-        if r == "0":
-            return
-        elif r == "1":
-            __set_lyric_path(self)
-        elif r == "2":
-            __remove_output_files(self)
-        elif r == "3":
-            __set_lyric_format(self)
-        elif r == "4":
-            pass
-        elif r == "s":
-            self.settings.auto_save = not self.settings.auto_save
-        else:
-            input("输入无效！按回车键继续...")
+        match r:
+            case "0":
+                return
+            case "1":
+                __set_lyric_path(self)
+            case "2":
+                __remove_output_files(self)
+            case "3":
+                __set_lyric_format(self)
+            case "4":
+                pass
+            case "s":
+                self.settings.auto_save = not self.settings.auto_save
+            case _:
+                input("输入无效！按回车键继续...")
 
 
 def __remove_output_files(self):
